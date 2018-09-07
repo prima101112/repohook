@@ -63,11 +63,14 @@ func pull() {
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	log.Println("running command..")
+	log.Println(cmd.Args)
+	log.Println("=================")
 	err := cmd.Run()
 	if err != nil {
 		log.Println("failed execute command : ", err.Error())
 		return
 	}
+	log.Println("=================")
 	log.Println("finish command..")
 }
 
@@ -84,10 +87,12 @@ func postevent() {
 	cmd.Stdout = os.Stdout
 	log.Println("running command..")
 	log.Println(cmd.Args)
+	log.Println("=================")
 	err := cmd.Run()
 	if err != nil {
 		log.Println("failed execute command : ", err.Error())
 		return
 	}
+	log.Println("=================")
 	log.Println("finish command..")
 }
