@@ -42,7 +42,7 @@ func GithubHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(b, &res)
 	if err != nil {
 		log.Println("failed to unmarshal : ", err.Error())
-		log.Println("response body : ", b)
+		log.Println("response body : ", string(b))
 		http.Error(w, "failed to unmarshal", 200)
 		return
 	}
