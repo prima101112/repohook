@@ -2,10 +2,19 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
+
+var BRANCH string
+
+func init() {
+	branchPtr := flag.String("branch", "master", "a string")
+	flag.Parse()
+	BRANCH = *branchPtr
+}
 
 func GithubHandler(w http.ResponseWriter, r *http.Request) {
 	var res map[string]interface{}
@@ -23,5 +32,8 @@ func GithubHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Print(res)
+	if res["ref"] == "refs/heads/"+BRANCH {
+		log.Print("this is master doing something")
+	}
+
 }
