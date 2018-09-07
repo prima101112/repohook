@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func githubHandler(w http.ResponseWriter, r *http.Request) {
+func GithubHandler(w http.ResponseWriter, r *http.Request) {
 	var res map[string]interface{}
 	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()

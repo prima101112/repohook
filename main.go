@@ -1,16 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 )
 
 func main() {
-	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe(":9999", nil))
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
+	http.HandleFunc("/github", GithubHandler)
+	log.Println("start server at port 9999")
+	err := http.ListenAndServe(":9999", nil)
+	if err != nil {
+		log.Fatal("cant start server : ", err.Error())
+	}
 }
