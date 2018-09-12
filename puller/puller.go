@@ -2,6 +2,7 @@ package puller
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
 	"os"
@@ -11,34 +12,48 @@ import (
 )
 
 //Repo Contains repo fields
-type Repo struct {
+type Push struct {
 	Branch string
+	Repo   Repo
+}
+
+type Repo struct {
+	Name     string `json:"name"`
+	FullName string `json:"full_name"`
+	Url      string `json:"url"`
 }
 
 // ChecRequest checking request will return repo and error
-func CheckRequest(branch string, req map[string]interface{}) (Repo, error) {
-	var rep Repo
+func CheckRequest(branch string, req map[string]interface{}) (Push, error) {
+	var push Push
 	if val, ok := req["ref"]; ok {
 		ref := strings.Split(val.(string), "/")
 		if len(ref) == 3 {
-			rep.Branch = ref[2]
-			if rep.Branch != branch {
-				return rep, errors.New("branch is not" + branch)
+			if ref[2] != branch {
+				return push, errors.New("branch is not" + branch)
 			}
-			return rep, nil
+			push.Branch = ref[2]
 		}
 		er := errors.New("failed get branch")
-		return rep, er
+		return push, er
 	}
-	er := errors.New("failed get branch")
-	return rep, er
+
+	if val, ok := req["repository"]; ok {
+		err := json.Unmarshal([]byte(val.(string)), &push.Repo)
+		if err != nil {
+			er := errors.New("failed get repo detail")
+			return push, er
+		}
+	}
+
+	return push, nil
 }
 
 // Pull execute git pull to path and base on repo
-func Pull(path string, repo Repo) error {
+func Pull(path string, push Push) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "git", "pull", "--no-ff", "origin", repo.Branch)
+	cmd := exec.CommandContext(ctx, "git", "pull", "--no-ff", "origin", push.Branch)
 	cmd.Dir = path
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout

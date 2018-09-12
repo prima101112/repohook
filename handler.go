@@ -46,8 +46,8 @@ func GithubHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to unmarshal", 200)
 		return
 	}
-	repo, err := puller.CheckRequest(res, BRANCH)
-	err = puller.Pull(PATH, repo)
+	push, err := puller.CheckRequest(BRANCH, res)
+	err = puller.Pull(PATH, push)
 	if err != nil {
 		log.Println("failed to pull : ", err.Error())
 		http.Error(w, "failed to pull", 200)
