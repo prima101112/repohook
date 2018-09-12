@@ -1,15 +1,14 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
-	"time"
+
+	"github.com/prima101112/repohook/puller"
 )
 
 var BRANCH string
@@ -30,6 +29,7 @@ func init() {
 	}
 }
 
+// GithubHandler handler for github
 func GithubHandler(w http.ResponseWriter, r *http.Request) {
 	var res map[string]interface{}
 	b, err := ioutil.ReadAll(r.Body)
@@ -46,54 +46,18 @@ func GithubHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to unmarshal", 200)
 		return
 	}
-
-	if res["ref"] == "refs/heads/"+BRANCH {
-		pull()
-		postevent()
-		log.Println("recheive git push : ok")
-		http.Error(w, "ok", 200)
-		return
-	}
-}
-
-func pull() {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "git", "pull", "--no-ff", "origin", BRANCH)
-	cmd.Dir = PATH
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	log.Println("running command..")
-	log.Println(cmd.Args)
-	log.Println("=================")
-	err := cmd.Run()
+	repo, err := puller.CheckRequest(res, BRANCH)
+	err = puller.Pull(PATH, repo)
 	if err != nil {
-		log.Println("failed execute command : ", err.Error())
+		log.Println("failed to pull : ", err.Error())
+		http.Error(w, "failed to pull", 200)
 		return
 	}
-	log.Println("=================")
-	log.Println("finish command..")
-}
 
-func postevent() {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if POSTSCRIPT == "" {
-		POSTSCRIPT = "script/postevent.sh"
-	}
-
-	cmd := exec.CommandContext(ctx, "sh", POSTSCRIPT)
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	log.Println("running command..")
-	log.Println(cmd.Args)
-	log.Println("=================")
-	err := cmd.Run()
+	err = puller.Postevent(POSTSCRIPT)
 	if err != nil {
-		log.Println("failed execute command : ", err.Error())
+		log.Println("failed to execute postevent : ", err.Error())
+		http.Error(w, "failed to execute postevent", 200)
 		return
 	}
-	log.Println("=================")
-	log.Println("finish command..")
 }
