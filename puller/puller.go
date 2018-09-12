@@ -78,7 +78,3 @@ func Postevent(postscript string) error {
 	}
 	return nil
 }
-
-func PostFunction(postfunction func()) {
-	postfunction()
-}
