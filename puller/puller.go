@@ -78,7 +78,7 @@ func Postevent(postscript string) error {
 	if postscript == "" {
 		return errors.New("no postscript defined")
 	} else {
-		cmd := exec.CommandContext(ctx, "sh", postscript)
+		cmd := exec.CommandContext(ctx, "/bin/sh", "-c", postscript)
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
 		log.Println("running command..")
