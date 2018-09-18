@@ -60,4 +60,6 @@ func GithubHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to execute postevent", 200)
 		return
 	}
+	http.Error(w, "oke", 200)
+	return
 }
