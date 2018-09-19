@@ -53,14 +53,26 @@ func CheckRequest(branch string, req map[string]interface{}) (Push, error) {
 func Pull(path string, push Push) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "git", "pull", "--no-ff", "origin", push.Branch)
+	cmd := exec.CommandContext(ctx, "git", "reset", "--hard", "HEAD", push.Branch)
+	cmd.Dir = path
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	log.Println("running command..")
+	log.Println(cmd.Args)
+	err := cmd.Run()
+	if err != nil {
+		er := errors.New("failed execute command : " + err.Error())
+		log.Println(er.Error())
+		return er
+	}
+	cmd = exec.CommandContext(ctx, "git", "pull", "--no-ff", "origin", push.Branch)
 	cmd.Dir = path
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	log.Println("running command..")
 	log.Println(cmd.Args)
 	log.Println("=================")
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
 		er := errors.New("failed execute command : " + err.Error())
 		log.Println(er.Error())
