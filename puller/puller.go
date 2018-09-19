@@ -53,7 +53,7 @@ func CheckRequest(branch string, req map[string]interface{}) (Push, error) {
 func Pull(path string, push Push) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "git", "reset", "--hard", "HEAD", push.Branch)
+	cmd := exec.CommandContext(ctx, "git", "reset", "--hard", "HEAD")
 	cmd.Dir = path
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
